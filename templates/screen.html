@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ title }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-page="{{ page }}">
+<main class="phone {% if page in ['faq','contact'] %}help{% endif %}">
+<div class="status"><span>16:04</span><span aria-hidden="true">▮▮▮ ◉ ▰</span></div>
+<header>
+<a class="back" href="{% if page in ['notifications','password'] %}/settings{% else %}/{% endif %}" aria-label="Back to previous screen">‹</a>
+<h1>{{ title }}</h1>
+{% if page in ['profile','home','logout'] %}<a class="gear" href="/settings" aria-label="Settings">⚙</a>{% endif %}
+</header>
+{% if page in ['faq','contact'] %}
+<div class="help-top"><p>How Can We Help You?</p><label class="search"><span aria-hidden="true">⌕</span><input id="search" placeholder="Search..." aria-label="Search help topics"></label></div>
+{% endif %}
+<div class="content">
+{% if page in ['home','logout','profile'] %}
+<div class="portrait"><img id="avatar" src="{{ url_for('static',filename='avatar.png') }}" alt="Profile avatar"><label class="edit-avatar" for="avatar-file" aria-label="Choose profile picture">✎</label><input id="avatar-file" type="file" accept="image/png,image/jpeg,image/webp" hidden></div>
+{% endif %}
+{% if page in ['home','logout'] %}
+<h2 id="profile-name" class="name">John Doe</h2>
+<nav class="menu">
+{% for icon,label,url in [('♙','Profile','/profile'),('♡','Favourite','#favourite'),('▣','Payment Method','#payment'),('♧','Privacy Policy','/privacy'),('⚙','Settings','/settings'),('?','Help','/help'),('↪','Logout','/logout')] %}
+<a class="row" href="{{ url }}"><span class="icon">{{ icon }}</span><span>{{ label }}</span><span class="chevron">›</span></a>
+{% endfor %}
+</nav>
+<p class="demo-note">Interactive demo · Data stays in this browser</p>
+{% elif page == 'profile' %}
+<form id="profile-form" class="profile-form">
+<label>Full Name<input name="name" value="John Doe" maxlength="80" autocomplete="name" required></label>
+<label>Phone Number<input name="phone" type="tel" value="+123 567 89000" maxlength="30" autocomplete="tel" required></label>
+<label>Email<input name="email" type="email" value="johndoe@example.com" autocomplete="email" required></label>
+<label>Date Of Birth<input name="dob" type="date" aria-label="Date of birth"></label>
+<button class="primary bottom" type="submit">Update Profile</button>
+</form>
+{% elif page == 'settings' %}
+<nav class="menu settings-menu">
+<a class="row" href="/notifications"><span class="line-icon">♧</span><span>Notification Setting</span><span class="chevron">›</span></a>
+<a class="row" href="/password"><span class="line-icon">⚿</span><span>Password Manager</span><span class="chevron">›</span></a>
+<button class="row" id="delete-open"><span class="line-icon">♙</span><span>Delete Account</span><span class="chevron">›</span></button>
+</nav>
+{% elif page == 'notifications' %}
+<section class="notification-list" aria-label="Notification settings">
+{% for label,enabled in [('General Notification',true),('Sound',true),('Sound Call',true),('Vibrate',false),('Special Offers',false),('Payments',true),('Promo And Discount',false),('Cashback',true)] %}
+<label class="toggle-row"><span>{{ label }}</span><span class="switch"><input type="checkbox" role="switch" data-key="{{ label }}" {% if enabled %}checked{% endif %}><span class="slider"></span></span></label>
+{% endfor %}
+</section>
+{% elif page == 'password' %}
+<form id="password-form" class="password-form">
+{% for name,label in [('current','Current Password'),('new','New Password'),('confirm','Confirm New Password')] %}
+<label>{{ label }}<span class="password-field"><input name="{{ name }}" type="password" placeholder="*************" autocomplete="{% if name == 'current' %}current-password{% else %}new-password{% endif %}" minlength="8" maxlength="128" required><button class="reveal" type="button" aria-label="Show {{ label|lower }}">◉</button></span></label>
+{% if name == 'current' %}<button type="button" id="forgot" class="link forgot">Forgot Password?</button>{% endif %}
+{% endfor %}
+<p class="demo-note">Demo form — no real password is saved or changed.</p>
+<button type="submit" class="primary bottom">Change Password</button>
+</form>
+{% elif page in ['faq','contact'] %}
+<nav class="tabs"><a href="/help" class="{% if page == 'faq' %}active{% endif %}">FAQ</a><a href="/help/contact" class="{% if page == 'contact' %}active{% endif %}">Contact Us</a></nav>
+{% if page == 'faq' %}
+<div class="topics" role="group" aria-label="FAQ categories"><button class="active" data-topic="all">Popular Topic</button><button data-topic="general">General</button><button data-topic="services">Services</button></div>
+<div id="faqs">
+{% for question,answer,category in [
+('How do I update my profile?','Open Profile, edit your details and select Update Profile. Changes are saved in this browser.','general'),
+('How do I change notifications?','Open Settings and then Notification Setting. Each switch saves automatically.','general'),
+('Where is my information stored?','This demo stores profile details and preferences locally in your browser. There is no account database.','general'),
+('Can I change my password?','This screen demonstrates password validation. Connect a secure authentication backend to change real passwords.','services'),
+('How do I contact support?','Select Contact Us to view the contact channels. Add your actual support details before publishing for customers.','services'),
+('How do I delete my demo data?','Open Settings, select Delete Account, and confirm. This clears this app’s saved data in this browser.','general'),
+('Can I use this on my phone?','Yes. Open the website link in your phone browser. The layout adjusts to your screen.','services')] %}
+<details class="faq" data-category="{{ category }}" {% if loop.first %}open{% endif %}><summary>{{ question }}</summary><p>{{ answer }}</p></details>
+{% endfor %}
+</div><p id="no-results" hidden>No matching questions.</p>
+{% else %}
+<div class="contacts">
+{% for icon,label,detail in [('♧','Customer Service','Add your support email or telephone number here.'),('◎','Website','Add your business website URL here.'),('☏','Whatsapp','Add your WhatsApp business number here.'),('f','Facebook','Add your Facebook page URL here.'),('▣','Instagram','Add your Instagram profile URL here.')] %}
+<details class="contact"><summary><span class="icon">{{ icon }}</span><span>{{ label }}</span></summary><p>{{ detail }}</p></details>
+{% endfor %}
+</div>
+{% endif %}
+{% elif page == 'privacy' %}
+<article class="policy"><p class="updated">Last Update: 14/10/2026</p><p>This is a demonstration application. Profile information, your selected avatar, and notification preferences are stored in your browser, not in an account database.</p><p>The password form only checks the entered values for this demonstration. Passwords are not saved or sent to the server. The hosting provider may record standard access logs such as IP addresses and request times.</p><h2>Terms &amp; Conditions</h2><ol><li>This app is provided for demonstration and design review.</li><li>Use sample profile information when testing. Browser storage is available to anyone with access to this browser profile.</li><li>Delete Account clears this demo’s locally saved information. Logout shows the welcome screen and does not create or terminate a real authenticated session.</li><li>Contact channels are placeholders. Replace this text with policies and support details appropriate to your actual service before a customer launch.</li></ol><p class="demo-note">Sample policy text for the demo.</p></article>
+{% elif page == 'welcome' %}
+<div class="welcome"><div class="welcome-icon">♙</div><h2>You're logged out</h2><p>Explore the profile and settings demo.</p><a class="primary" href="/">Open Demo</a></div>
+{% endif %}
+</div>
+{% if page == 'logout' %}
+<div class="overlay"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="logout-title"><h2 id="logout-title">Logout</h2><p>are you sure you want to log out?</p><div class="actions"><a class="secondary" href="/">Cancel</a><a class="primary" href="/welcome">Yes, Logout</a></div></section></div>
+{% endif %}
+<dialog id="delete-dialog"><h2>Delete Account</h2><p>Clear this demo’s profile and preferences from this browser?</p><div class="actions"><button class="secondary" id="delete-cancel">Cancel</button><button class="primary" id="delete-confirm">Delete</button></div></dialog>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+</main>
+<script src="{{ url_for('static',filename='app.js') }}"></script>
+</body></html>
